@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pickup.local/contracts/pickup-portable-backup-v2.schema.json",
+  "title": "Pickup portable backup v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["format", "formatVersion", "exportedAt", "entries", "aiEntries"],
+  "properties": {
+    "format": { "const": "pickup-portable-backup" },
+    "formatVersion": { "const": 2 },
+    "exportedAt": { "type": "string", "format": "date-time" },
+    "entries": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/entry" }
+    },
+    "aiEntries": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/aiEntry" }
+    }
+  },
+  "$defs": {
+    "portablePath": {
+      "type": "string",
+      "pattern": "^media/[A-Za-z0-9._-]+$"
+    },
+    "comment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text", "timestamp"],
+      "properties": {
+        "text": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
+    },
+    "media": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "path"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "type": { "enum": ["image", "video", "motionPhoto"] },
+        "path": { "$ref": "#/$defs/portablePath" },
+        "motionVideoPath": { "$ref": "#/$defs/portablePath" }
+      }
+    },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "content",
+        "imagePath",
+        "imagePaths",
+        "videoPaths",
+        "media",
+        "songInfo",
+        "timestamp",
+        "comments"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "content": { "type": "string" },
+        "imagePath": {
+          "oneOf": [
+            { "$ref": "#/$defs/portablePath" },
+            { "type": "null" }
+          ]
+        },
+        "imagePaths": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/portablePath" }
+        },
+        "videoPaths": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/portablePath" }
+        },
+        "media": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/media" }
+        },
+        "songInfo": { "type": ["string", "null"] },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "comments": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/comment" }
+        }
+      }
+    },
+    "aiEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "question", "answer", "type", "timestamp", "comments"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "question": { "type": "string" },
+        "answer": { "type": "string" },
+        "type": { "enum": ["recall", "summary"] },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "comments": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/comment" }
+        }
+      }
+    }
+  }
+}

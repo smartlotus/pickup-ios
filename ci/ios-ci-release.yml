@@ -1,0 +1,193 @@
+name: Build, Test, Screenshot & Package PickupIOS
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: macos-26
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Select Xcode 26
+        run: |
+          XCODE_APP=$(ls -d /Applications/Xcode_26*.app /Applications/Xcode.app 2>/dev/null | sort -V | tail -n 1)
+          echo "Using Xcode: $XCODE_APP"
+          sudo xcode-select -s "$XCODE_APP/Contents/Developer"
+          xcodebuild -version
+          xcodebuild -showsdks
+
+      - name: Run PickupCore Swift 6 unit tests
+        run: swift test
+
+      - name: Ensure XcodeGen & generate PickupIOS.xcodeproj
+        run: |
+          if ! command -v xcodegen >/dev/null 2>&1; then
+            brew install xcodegen
+          fi
+          python3 scripts/generate_icons.py || true
+          xcodegen generate
+          ls -la PickupIOS.xcodeproj
+
+      - name: Build unsigned Release iOS app & package PickupIOS.ipa
+        run: |
+          xcodebuild clean build \
+            -project PickupIOS.xcodeproj \
+            -scheme PickupIOS \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            -derivedDataPath build/ios
+          APP_PATH=$(find build/ios/Build/Products/Release-iphoneos -name "*.app" -maxdepth 2 | head -n 1)
+          echo "Built app: $APP_PATH"
+          mkdir -p dist
+          bash scripts/package_ipa.sh "$APP_PATH" dist/PickupIOS.ipa
+          IPA_SIZE=$(stat -f%z dist/PickupIOS.ipa)
+          python3 - <<PY
+          import json, datetime
+          source = {
+            "name": "Pickup iOS Personal Repo",
+            "identifier": "com.smartlotus.pickup.source",
+            "subtitle": "Local-first Liquid Glass journal & data vault",
+            "apps": [{
+              "name": "Pickup",
+              "bundleIdentifier": "com.smartlotus.pickup",
+              "developerName": "Zhuyouqian",
+              "subtitle": "把日子，拾起来。",
+              "localizedDescription": "Local-first iOS 26 Liquid Glass journal with Revisit, Timeline, consent-driven AI Hub, and Scheduled Data Vault.",
+              "iconURL": "https://raw.githubusercontent.com/smartlotus/pickup-ios/main/App/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
+              "tintColor": "7C4DFF",
+              "versions": [{
+                "version": "1.0.0",
+                "date": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "localizedDescription": "Initial iOS 26 Liquid Glass release with full Android v2 ZIP import/export & Scheduled Backup Vault.",
+                "downloadURL": "https://github.com/smartlotus/pickup-ios/releases/download/v1.0.0/PickupIOS.ipa",
+                "size": int(${IPA_SIZE})
+              }],
+              "appPermissions": {"entitlements": [], "privacy": {}}
+            }]
+          }
+          with open("dist/altstore-source.json", "w", encoding="utf-8") as f:
+              json.dump(source, f, ensure_ascii=False, indent=2)
+          PY
+
+      - name: Build Simulator app & capture real iOS 26 iPhone + iPad Liquid Glass screenshots
+        run: |
+          mkdir -p screenshots
+          eval "$(python3 - <<'PY'
+          import json, subprocess
+          raw = subprocess.check_output(["xcrun", "simctl", "list", "devices", "available", "-j"])
+          data = json.loads(raw)["devices"]
+          iphone_udid = ""
+          ipad_udid = ""
+          for runtime, devs in sorted(data.items(), reverse=True):
+              if "iOS" not in runtime:
+                  continue
+              for d in devs:
+                  if not d.get("isAvailable", True):
+                      continue
+                  name = d["name"]
+                  if not iphone_udid and "iPhone" in name and ("Pro" in name or "17" in name or "16" in name):
+                      iphone_udid = d["udid"]
+                  if not ipad_udid and "iPad" in name and ("Pro" in name or "Air" in name):
+                      ipad_udid = d["udid"]
+              if not iphone_udid:
+                  for d in devs:
+                      if "iPhone" in d["name"]:
+                          iphone_udid = d["udid"]; break
+              if not ipad_udid:
+                  for d in devs:
+                      if "iPad" in d["name"]:
+                          ipad_udid = d["udid"]; break
+          print(f'IPHONE_UDID="{iphone_udid}"')
+          print(f'IPAD_UDID="{ipad_udid}"')
+          PY
+          )"
+          echo "Selected iPhone UDID: $IPHONE_UDID | iPad UDID: $IPAD_UDID"
+
+          xcodebuild build \
+            -project PickupIOS.xcodeproj \
+            -scheme PickupIOS \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination "id=$IPHONE_UDID" \
+            -derivedDataPath build/sim
+
+          SIM_APP=$(find build/sim/Build/Products/Debug-iphonesimulator -name "*.app" -maxdepth 2 | head -n 1)
+          echo "Built Sim App: $SIM_APP"
+
+          capture_shot() {
+            local udid="$1"
+            local out="$2"
+            shift 2
+            xcrun simctl terminate "$udid" com.smartlotus.pickup 2>/dev/null || true
+            xcrun simctl launch "$udid" com.smartlotus.pickup "$@"
+            sleep 3
+            xcrun simctl io "$udid" screenshot "$out"
+          }
+
+          if [ -n "$IPHONE_UDID" ]; then
+            xcrun simctl boot "$IPHONE_UDID" || true
+            xcrun simctl bootstatus "$IPHONE_UDID" -b
+            xcrun simctl ui "$IPHONE_UDID" appearance dark || true
+            xcrun simctl status_bar "$IPHONE_UDID" override --time "9:41" --batteryLevel 100 --batteryState charged --wifiBars 3 --cellularBars 4 || true
+            xcrun simctl install "$IPHONE_UDID" "$SIM_APP"
+            capture_shot "$IPHONE_UDID" screenshots/iphone-journal.png --demo-seed --skip-intro --tab journal --theme purple
+            capture_shot "$IPHONE_UDID" screenshots/iphone-timeline.png --skip-intro --tab timeline --theme purple
+            capture_shot "$IPHONE_UDID" screenshots/iphone-revisit.png --skip-intro --tab revisit --theme purple
+            capture_shot "$IPHONE_UDID" screenshots/iphone-datavault.png --skip-intro --tab data --theme purple
+            capture_shot "$IPHONE_UDID" screenshots/iphone-mono.png --skip-intro --tab journal --theme mono
+            xcrun simctl shutdown "$IPHONE_UDID" || true
+          fi
+
+          if [ -n "$IPAD_UDID" ]; then
+            xcrun simctl boot "$IPAD_UDID" || true
+            xcrun simctl bootstatus "$IPAD_UDID" -b
+            xcrun simctl ui "$IPAD_UDID" appearance dark || true
+            xcrun simctl status_bar "$IPAD_UDID" override --time "9:41" --batteryLevel 100 --batteryState charged --wifiBars 3 || true
+            xcrun simctl install "$IPAD_UDID" "$SIM_APP"
+            capture_shot "$IPAD_UDID" screenshots/ipad-splitview.png --demo-seed --skip-intro --tab journal --theme purple
+            xcrun simctl shutdown "$IPAD_UDID" || true
+          fi
+          ls -lh screenshots/
+
+      - name: Commit generated PickupIOS.xcodeproj back to main if missing
+        run: |
+          if [ -n "$(git status --porcelain PickupIOS.xcodeproj)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add -f PickupIOS.xcodeproj
+            git commit -m "chore: commit generated PickupIOS.xcodeproj [skip ci]" || true
+            git push origin HEAD:main || true
+          fi
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pickup-ios-artifacts
+          path: |
+            dist/PickupIOS.ipa
+            dist/altstore-source.json
+            screenshots/*.png
+            PickupIOS.xcodeproj
+
+      - name: Publish GitHub Release v1.0.0 with PickupIOS.ipa
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view v1.0.0 >/dev/null 2>&1; then
+            gh release upload v1.0.0 dist/PickupIOS.ipa dist/altstore-source.json screenshots/*.png --clobber
+          else
+            gh release create v1.0.0 dist/PickupIOS.ipa dist/altstore-source.json screenshots/*.png \
+              --title "Pickup iOS & iPadOS v1.0.0 (Liquid Glass)" \
+              --notes "Native iOS 26 / iPadOS Liquid Glass port of Pickup with full Android v2 ZIP import/export, AES-256-GCM .pickupvault encryption, Scheduled Auto-Backup Engine, and Storage Hygiene Vault. Unsigned IPA ready for SideStore / AltStore / Sideloadly without paying \$99/yr."
+          fi

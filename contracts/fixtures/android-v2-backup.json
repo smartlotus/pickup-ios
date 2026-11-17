@@ -1,0 +1,50 @@
+{
+  "format": "pickup-portable-backup",
+  "formatVersion": 2,
+  "exportedAt": "2026-08-22T00:00:00.000Z",
+  "entries": [
+    {
+      "id": "synthetic-android-v2-entry",
+      "content": "这是一条完全虚构的 Android v2 兼容测试记录。",
+      "imagePath": "media/media_0000.png",
+      "imagePaths": ["media/media_0000.png", "media/media_0002.jpg"],
+      "videoPaths": ["media/media_0001.mp4", "media/media_0003.mp4"],
+      "media": [
+        {
+          "id": "synthetic-image",
+          "type": "image",
+          "path": "media/media_0000.png"
+        },
+        {
+          "id": "synthetic-video",
+          "type": "video",
+          "path": "media/media_0001.mp4"
+        },
+        {
+          "id": "synthetic-motion-photo",
+          "type": "motionPhoto",
+          "path": "media/media_0002.jpg",
+          "motionVideoPath": "media/media_0003.mp4"
+        }
+      ],
+      "songInfo": "Synthetic Song — Fictional Artist",
+      "timestamp": "2026-08-21T04:30:00.000Z",
+      "comments": [
+        {
+          "text": "这是一条完全虚构的感想。",
+          "timestamp": "2026-08-21T05:00:00.000Z"
+        }
+      ]
+    }
+  ],
+  "aiEntries": [
+    {
+      "id": "synthetic-ai-entry",
+      "question": "虚构问题",
+      "answer": "虚构回答",
+      "type": "summary",
+      "timestamp": "2026-08-21T06:00:00.000Z",
+      "comments": []
+    }
+  ]
+}

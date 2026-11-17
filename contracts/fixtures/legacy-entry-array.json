@@ -1,0 +1,10 @@
+[
+  {
+    "id": "synthetic-legacy-entry",
+    "content": "这是一条完全虚构的旧版兼容测试记录。",
+    "imagePath": "synthetic-1x1.png",
+    "songInfo": null,
+    "timestamp": "2024-01-02T03:04:05.000Z",
+    "comments": []
+  }
+]

@@ -1,0 +1,52 @@
+name: PickupIOS
+options:
+  bundleIdPrefix: com.smartlotus
+  deploymentTarget:
+    iOS: "18.0"
+  createIntermediateGroups: true
+  defaultConfig: Release
+
+packages:
+  PickupCore:
+    path: .
+
+targets:
+  PickupIOS:
+    type: application
+    platform: iOS
+    deploymentTarget: "18.0"
+    sources:
+      - path: App
+        excludes:
+          - "**/*.md"
+    dependencies:
+      - package: PickupCore
+        product: PickupCore
+    info:
+      path: App/Info.plist
+    settings:
+      base:
+        PRODUCT_NAME: Pickup
+        PRODUCT_BUNDLE_IDENTIFIER: com.smartlotus.pickup
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "6.0"
+        SWIFT_STRICT_CONCURRENCY: complete
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SUPPORTS_MACCATALYST: NO
+        SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        GENERATE_INFOPLIST_FILE: NO
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: ""
+        ENABLE_USER_SCRIPT_SANDBOXING: YES
+schemes:
+  PickupIOS:
+    build:
+      targets:
+        PickupIOS: all
+    run:
+      config: Debug
+    archive:
+      config: Release
