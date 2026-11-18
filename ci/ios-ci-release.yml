@@ -65,7 +65,7 @@ jobs:
               "subtitle": "把日子，拾起来。",
               "localizedDescription": "Local-first iOS 26 Liquid Glass journal with Revisit, Timeline, consent-driven AI Hub, and Scheduled Data Vault.",
               "iconURL": "https://raw.githubusercontent.com/smartlotus/pickup-ios/main/App/Assets.xcassets/AppIcon.appiconset/icon-1024.png",
-              "tintColor": "7C4DFF",
+              "tintColor": "111111",
               "versions": [{
                 "version": "1.0.0",
                 "date": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -141,11 +141,11 @@ jobs:
             xcrun simctl ui "$IPHONE_UDID" appearance dark || true
             xcrun simctl status_bar "$IPHONE_UDID" override --time "9:41" --batteryLevel 100 --batteryState charged --wifiBars 3 --cellularBars 4 || true
             xcrun simctl install "$IPHONE_UDID" "$SIM_APP"
-            capture_shot "$IPHONE_UDID" screenshots/iphone-journal.png --demo-seed --skip-intro --tab journal --theme purple
-            capture_shot "$IPHONE_UDID" screenshots/iphone-timeline.png --skip-intro --tab timeline --theme purple
-            capture_shot "$IPHONE_UDID" screenshots/iphone-revisit.png --skip-intro --tab revisit --theme purple
-            capture_shot "$IPHONE_UDID" screenshots/iphone-datavault.png --skip-intro --tab data --theme purple
-            capture_shot "$IPHONE_UDID" screenshots/iphone-mono.png --skip-intro --tab journal --theme mono
+            capture_shot "$IPHONE_UDID" screenshots/iphone-journal.png --demo-seed --skip-intro --tab journal --theme dark
+            capture_shot "$IPHONE_UDID" screenshots/iphone-timeline.png --skip-intro --tab timeline --theme dark
+            capture_shot "$IPHONE_UDID" screenshots/iphone-revisit.png --skip-intro --tab revisit --theme dark
+            capture_shot "$IPHONE_UDID" screenshots/iphone-datavault.png --skip-intro --tab data --theme dark
+            capture_shot "$IPHONE_UDID" screenshots/iphone-light.png --skip-intro --tab journal --theme light
             xcrun simctl shutdown "$IPHONE_UDID" || true
           fi
 
@@ -155,7 +155,7 @@ jobs:
             xcrun simctl ui "$IPAD_UDID" appearance dark || true
             xcrun simctl status_bar "$IPAD_UDID" override --time "9:41" --batteryLevel 100 --batteryState charged --wifiBars 3 || true
             xcrun simctl install "$IPAD_UDID" "$SIM_APP"
-            capture_shot "$IPAD_UDID" screenshots/ipad-splitview.png --demo-seed --skip-intro --tab journal --theme purple
+            capture_shot "$IPAD_UDID" screenshots/ipad-splitview.png --demo-seed --skip-intro --tab journal --theme dark
             xcrun simctl shutdown "$IPAD_UDID" || true
           fi
           ls -lh screenshots/

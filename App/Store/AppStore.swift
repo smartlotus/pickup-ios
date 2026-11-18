@@ -131,7 +131,7 @@ public final class AppStore {
 
         if let themeIdx = args.firstIndex(of: "--theme"), args.indices.contains(themeIdx + 1) {
             let val = args[themeIdx + 1]
-            preferences.themeStyle = (val == "mono") ? .monochrome : .purpleDark
+            preferences.themeStyle = (val == "light") ? .monochromeLight : .monochrome
             try? await repository.savePreferences(preferences)
         }
 
@@ -433,16 +433,16 @@ public final class AppStore {
             return
         }
         let img1 = Self.renderArtworkPNG(
-            topHex: 0x261B47,
-            bottomHex: 0x0E0D15,
-            accentHex: 0xA78BFA,
+            topHex: 0x2E2E2B,
+            bottomHex: 0x090909,
+            accentHex: 0xF4F3ED,
             title: "Evening Walk",
             subtitle: "19:42 · Corner Florist"
         )
         let img2 = Self.renderArtworkPNG(
-            topHex: 0x2E191B,
-            bottomHex: 0x100E12,
-            accentHex: 0xF46862,
+            topHex: 0x222220,
+            bottomHex: 0x080808,
+            accentHex: 0xD8D7D0,
             title: "Window Sunlight",
             subtitle: "15:18 · Coffee & Pages"
         )

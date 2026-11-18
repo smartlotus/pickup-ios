@@ -72,10 +72,20 @@ def main() -> None:
                 {
                     "color": {
                         "color-space": "srgb",
-                        "components": {"alpha": "1.000", "blue": "1.000", "green": "0.302", "red": "0.486"},
+                        "components": {"alpha": "1.000", "blue": "0.067", "green": "0.067", "red": "0.067"},
                     },
                     "idiom": "universal",
-                }
+                },
+                {
+                    "appearances": [
+                        {"appearance": "luminosity", "value": "dark"}
+                    ],
+                    "color": {
+                        "color-space": "srgb",
+                        "components": {"alpha": "1.000", "blue": "0.929", "green": "0.953", "red": "0.957"},
+                    },
+                    "idiom": "universal",
+                },
             ],
             "info": {"author": "xcode", "version": 1},
         }, indent=2) + "\n",

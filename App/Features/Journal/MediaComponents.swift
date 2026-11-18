@@ -169,7 +169,15 @@ public struct PencilSketchSheet: View {
 
     @Environment(\.dismiss) private var dismiss
     @State private var canvasView = PKCanvasView()
-    @State private var inkColor: Color = Color(hex: 0xF4F3ED)
+    @State private var inkColor: Color? = nil
+
+    private var selectedInkColor: Color {
+        inkColor ?? palette.primaryText
+    }
+
+    private var inkSwatches: [Color] {
+        [palette.primaryText, palette.highlight, palette.secondaryText, palette.redPen]
+    }
 
     public var body: some View {
         NavigationStack {
@@ -177,7 +185,7 @@ public struct PencilSketchSheet: View {
                 palette.background.ignoresSafeArea()
                 VStack(spacing: 12) {
                     HStack(spacing: 14) {
-                        ForEach([Color(hex: 0xF4F3ED), palette.redPen, palette.accent, palette.gold], id: \.self) { c in
+                        ForEach(inkSwatches, id: \.self) { c in
                             Button {
                                 inkColor = c
                                 updateTool()
@@ -185,7 +193,14 @@ public struct PencilSketchSheet: View {
                                 Circle()
                                     .fill(c)
                                     .frame(width: 28, height: 28)
-                                    .overlay(Circle().strokeBorder(.white, lineWidth: inkColor == c ? 2.5 : 0))
+                                    .overlay(
+                                        Circle()
+                                            .strokeBorder(palette.background, lineWidth: selectedInkColor == c ? 3 : 0)
+                                    )
+                                    .overlay(
+                                        Circle()
+                                            .strokeBorder(palette.primaryText, lineWidth: selectedInkColor == c ? 1.5 : 0.6)
+                                    )
                             }
                         }
                         Spacer()
@@ -197,7 +212,7 @@ public struct PencilSketchSheet: View {
                     }
                     .padding(.horizontal, 18)
 
-                    PencilCanvasRepresentable(canvasView: $canvasView, inkColor: UIColor(inkColor), backgroundColor: UIColor(palette.cardSurface))
+                    PencilCanvasRepresentable(canvasView: $canvasView, inkColor: UIColor(selectedInkColor), backgroundColor: UIColor(palette.cardSurface))
                         .clipShape(RoundedRectangle(cornerRadius: 22))
                         .overlay(RoundedRectangle(cornerRadius: 22).strokeBorder(palette.hairline))
                         .padding(.horizontal, 16)
@@ -227,7 +242,7 @@ public struct PencilSketchSheet: View {
     }
 
     private func updateTool() {
-        canvasView.tool = PKInkingTool(.pen, color: UIColor(inkColor), width: 4.5)
+        canvasView.tool = PKInkingTool(.pen, color: UIColor(selectedInkColor), width: 4.5)
     }
 }
 

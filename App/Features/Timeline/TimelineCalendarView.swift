@@ -122,7 +122,7 @@ public struct TimelineCalendarView: View {
                         VStack(alignment: .leading, spacing: 10) {
                             HStack {
                                 Image(systemName: "clock.arrow.circlepath")
-                                    .foregroundStyle(p.gold)
+                                    .foregroundStyle(p.highlight)
                                 Text(s.t("on_this_day"))
                                     .font(.headline)
                                     .foregroundStyle(p.primaryText)
@@ -134,7 +134,7 @@ public struct TimelineCalendarView: View {
                                             VStack(alignment: .leading, spacing: 8) {
                                                 Text(echo.timestamp.formatted(date: .long, time: .omitted))
                                                     .font(.caption.weight(.bold))
-                                                    .foregroundStyle(p.gold)
+                                                    .foregroundStyle(p.highlight)
                                                 Text(echo.content)
                                                     .font(.subheadline)
                                                     .foregroundStyle(p.primaryText)

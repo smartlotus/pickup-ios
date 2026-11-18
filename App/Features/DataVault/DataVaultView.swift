@@ -136,6 +136,7 @@ public struct DataVaultView: View {
 
         let mediaRatio = CGFloat(mediaBytes) / CGFloat(total)
         let backupRatio = CGFloat(backupsBytes) / CGFloat(total)
+        let textRatio = CGFloat(textBytes) / CGFloat(total)
 
         return PickupEditorialCard(palette: p, cornerRadius: 24, padding: 20) {
             VStack(alignment: .leading, spacing: 16) {
@@ -145,11 +146,15 @@ public struct DataVaultView: View {
                             .stroke(p.elevatedSurface, lineWidth: 14)
                         Circle()
                             .trim(from: 0, to: min(1, mediaRatio))
-                            .stroke(p.accent, style: StrokeStyle(lineWidth: 14, lineCap: .round))
+                            .stroke(p.primaryText, style: StrokeStyle(lineWidth: 14, lineCap: .round))
                             .rotationEffect(.degrees(-90))
                         Circle()
                             .trim(from: min(1, mediaRatio), to: min(1, mediaRatio + backupRatio))
-                            .stroke(p.gold, style: StrokeStyle(lineWidth: 14, lineCap: .round))
+                            .stroke(p.secondaryText, style: StrokeStyle(lineWidth: 14, lineCap: .round))
+                            .rotationEffect(.degrees(-90))
+                        Circle()
+                            .trim(from: min(1, mediaRatio + backupRatio), to: min(1, mediaRatio + backupRatio + textRatio))
+                            .stroke(p.redPen, style: StrokeStyle(lineWidth: 14, lineCap: .round))
                             .rotationEffect(.degrees(-90))
                         VStack(spacing: 2) {
                             Text(formatBytes(bd?.totalUsedBytes ?? 0))
@@ -166,9 +171,9 @@ public struct DataVaultView: View {
                         Text(s.t("storage_title"))
                             .font(.headline)
                             .foregroundStyle(p.primaryText)
-                        metricLegendRow(color: p.primaryText, label: isZh ? "日记与 AI 文本" : "Text & AI", bytes: textBytes, p: p)
-                        metricLegendRow(color: p.accent, label: isZh ? "照片 / 实况 / 视频" : "Media", bytes: mediaBytes, p: p)
-                        metricLegendRow(color: p.gold, label: isZh ? "本地备份快照 (\(bd?.backupCount ?? 0))" : "Snapshots (\(bd?.backupCount ?? 0))", bytes: backupsBytes, p: p)
+                        metricLegendRow(color: p.redPen, label: isZh ? "日记与 AI 文本" : "Text & AI", bytes: textBytes, p: p)
+                        metricLegendRow(color: p.primaryText, label: isZh ? "照片 / 实况 / 视频" : "Media", bytes: mediaBytes, p: p)
+                        metricLegendRow(color: p.secondaryText, label: isZh ? "本地备份快照 (\(bd?.backupCount ?? 0))" : "Snapshots (\(bd?.backupCount ?? 0))", bytes: backupsBytes, p: p)
                         if let free = bd?.deviceFreeBytes {
                             Text((isZh ? "设备可用：" : "Device free: ") + formatBytes(free))
                                 .font(.caption2.monospacedDigit())
@@ -202,7 +207,7 @@ public struct DataVaultView: View {
                     Task { await exportPortableZipFile() }
                 }
 
-                actionRow(icon: "lock.doc.fill", title: s.t("export_vault"), subtitle: s.t("export_vault_desc"), tint: p.gold, p: p) {
+                actionRow(icon: "lock.doc.fill", title: s.t("export_vault"), subtitle: s.t("export_vault_desc"), tint: p.highlight, p: p) {
                     showVaultExportPassphrase = true
                 }
 
@@ -341,7 +346,7 @@ public struct DataVaultView: View {
 
                     HStack {
                         Image(systemName: ab.externalFolderDisplayName == nil ? "folder.badge.plus" : "folder.fill.badge.checkmark")
-                            .foregroundStyle(ab.externalFolderDisplayName == nil ? p.tertiaryText : p.gold)
+                            .foregroundStyle(ab.externalFolderDisplayName == nil ? p.tertiaryText : p.accent)
                         Text(ab.externalFolderDisplayName ?? (isZh ? "未绑定外部目录（强烈建议绑定到「文件」或 NAS 防止免费签名过期丢失）" : "Not linked (recommended for zero-fee sideload safety)"))
                             .font(.caption)
                             .foregroundStyle(p.secondaryText)
@@ -401,7 +406,7 @@ public struct DataVaultView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             HStack(spacing: 8) {
                                 Image(systemName: snap.metadata.isPinned ? "pin.fill" : "archivebox.fill")
-                                    .foregroundStyle(snap.metadata.isPinned ? p.gold : p.accent)
+                                    .foregroundStyle(snap.metadata.isPinned ? p.accent : p.secondaryText)
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(snap.metadata.fileName)
                                         .font(.caption.weight(.semibold).monospaced())
@@ -430,7 +435,7 @@ public struct DataVaultView: View {
                                     Label(snap.metadata.isPinned ? (isZh ? "取消置顶" : "Unpin") : (isZh ? "锁定防删" : "Pin"), systemImage: "pin")
                                         .font(.caption2.weight(.semibold))
                                 }
-                                .tint(p.gold)
+                                .tint(p.highlight)
 
                                 Button {
                                     Task {

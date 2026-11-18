@@ -11,7 +11,7 @@ struct PickupIOSApp: App {
     var body: some Scene {
         WindowGroup {
             RootShellView(store: store)
-                .preferredColorScheme(.dark)
+                .preferredColorScheme(store.preferences.themeStyle == .monochromeLight ? .light : .dark)
                 .task {
                     await store.bootstrap()
                 }

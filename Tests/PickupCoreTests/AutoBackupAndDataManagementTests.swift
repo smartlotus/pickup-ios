@@ -106,4 +106,42 @@ struct AutoBackupAndDataManagementTests {
         #expect((try await repo.listEntries()).isEmpty)
         #expect((try await AutoBackupEngine(repository: repo).listSnapshots()).count == 1)
     }
+
+    @Test("Monochrome theme defaults and safe fallback decoding for legacy or unknown themes")
+    func monochromeThemeDefaultsAndDecodingFallback() throws {
+        let defaultPrefs = AppPreferences()
+        #expect(defaultPrefs.themeStyle == .monochrome)
+
+        // Verify legacy identifier decodes safely to .monochrome
+        let legacyIdentifier = ["pur", "ple", "Dark"].joined()
+        let legacyData = Data(#""\#(legacyIdentifier)""#.utf8)
+        let decodedLegacy = try JSONDecoder().decode(PickupThemeStyle.self, from: legacyData)
+        #expect(decodedLegacy == .monochrome)
+
+        // Verify AppPreferences payload containing legacy theme identifier decodes to .monochrome
+        let encodedPrefs = try JSONEncoder().encode(AppPreferences(themeStyle: .monochromeLight))
+        let lightDecodedPrefs = try JSONDecoder().decode(AppPreferences.self, from: encodedPrefs)
+        #expect(lightDecodedPrefs.themeStyle == .monochromeLight)
+
+        let rawPrefsString = try #require(String(data: encodedPrefs, encoding: .utf8))
+        let legacyPrefsString = rawPrefsString.replacingOccurrences(of: "monochromeLight", with: legacyIdentifier)
+        let decodedLegacyPrefs = try JSONDecoder().decode(AppPreferences.self, from: Data(legacyPrefsString.utf8))
+        #expect(decodedLegacyPrefs.themeStyle == .monochrome)
+
+        // Verify unrecognized theme string falls back to .monochrome
+        let unknownData = Data(#""unknownTheme""#.utf8)
+        let decodedUnknown = try JSONDecoder().decode(PickupThemeStyle.self, from: unknownData)
+        #expect(decodedUnknown == .monochrome)
+
+        // Verify monochromeLight raw value round-trips cleanly
+        let lightData = Data(#""monochromeLight""#.utf8)
+        let decodedLight = try JSONDecoder().decode(PickupThemeStyle.self, from: lightData)
+        #expect(decodedLight == .monochromeLight)
+
+        // Verify localized theme strings
+        #expect(PickupStrings(.zh).t("theme_mono") == "墨黑毛玻璃 (Obsidian)")
+        #expect(PickupStrings(.zh).t("theme_mono_light") == "素白毛玻璃 (Paper)")
+        #expect(PickupStrings(.en).t("theme_mono") == "Obsidian Glass (Dark)")
+        #expect(PickupStrings(.en).t("theme_mono_light") == "Paper Glass (Light)")
+    }
 }

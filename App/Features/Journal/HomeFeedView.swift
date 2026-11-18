@@ -74,11 +74,11 @@ public struct HomeFeedView: View {
                 Button {
                     Task {
                         await store.updatePreferences {
-                            $0.themeStyle = ($0.themeStyle == .purpleDark) ? .monochrome : .purpleDark
+                            $0.themeStyle = ($0.themeStyle == .monochrome) ? .monochromeLight : .monochrome
                         }
                     }
                 } label: {
-                    Image(systemName: store.preferences.themeStyle == .monochrome ? "circle.lefthalf.filled" : "sparkles.rectangle.stack")
+                    Image(systemName: store.preferences.themeStyle == .monochrome ? "circle.lefthalf.filled" : "sun.max")
                 }
             }
             ToolbarItemGroup(placement: .topBarTrailing) {
@@ -164,7 +164,7 @@ public struct HomeFeedView: View {
                                 .pickupGlassCapsule(
                                     tint: selected ? p.accent : nil,
                                     interactive: true,
-                                    fallbackSurface: selected ? p.accent : p.cardSurface
+                                    fallbackSurface: selected ? p.accent : p.glassFill
                                 )
                         }
                     }
@@ -185,10 +185,10 @@ public struct HomeFeedView: View {
                     } label: {
                         Text("#\(tag)")
                             .font(.caption.weight(.medium))
-                            .foregroundStyle(active ? p.primaryText : p.secondaryText)
+                            .foregroundStyle(active ? p.tintButtonForeground : p.secondaryText)
                             .padding(.horizontal, 10)
                             .padding(.vertical, 5)
-                            .background(active ? p.accent.opacity(0.28) : p.cardSurface.opacity(0.7), in: Capsule())
+                            .background(active ? p.accent : p.glassFill, in: Capsule())
                             .overlay(Capsule().strokeBorder(active ? p.accent : p.hairline, lineWidth: 1))
                     }
                 }

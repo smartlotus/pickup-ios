@@ -51,7 +51,7 @@ public struct RevisitEntryDetailView: View {
                         HStack {
                             Label(s.t("revisit_daily_badge"), systemImage: "sparkles")
                                 .font(.caption.weight(.bold))
-                                .foregroundStyle(p.gold)
+                                .foregroundStyle(p.highlight)
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 6)
                                 .pickupGlassCapsule(interactive: false)
@@ -81,7 +81,7 @@ public struct RevisitEntryDetailView: View {
                                 HStack {
                                     Text(entry.timestamp.formatted(date: .long, time: .shortened))
                                         .font(.caption.monospacedDigit())
-                                        .foregroundStyle(p.gold)
+                                        .foregroundStyle(p.highlight)
                                     Spacer()
                                     if let mood = entry.mood {
                                         Text(mood)

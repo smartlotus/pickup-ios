@@ -16,23 +16,32 @@ public struct LaunchIntroOverlay: View {
 
     public var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            Color(hex: 0x080808).ignoresSafeArea()
+
+            RadialGradient(
+                colors: [Color(hex: 0xF4F3ED).opacity(0.10), .clear],
+                center: .center,
+                startRadius: 20,
+                endRadius: 240
+            )
+            .ignoresSafeArea()
 
             VStack(spacing: 22) {
                 ZStack {
-                    // Cream watch face with vintage gold rim (#C5A86A)
+                    // Monochrome frosted glass watch face with crisp alabaster ring
                     Circle()
-                        .fill(Color(hex: 0xF4F3ED))
+                        .fill(.ultraThinMaterial)
+                        .overlay(Circle().fill(Color.white.opacity(0.06)))
                         .frame(width: 214, height: 214)
-                        .shadow(color: palette.gold.opacity(0.28), radius: 28)
+                        .shadow(color: Color.white.opacity(0.10), radius: 28)
 
                     Circle()
-                        .strokeBorder(palette.gold.opacity(0.85), lineWidth: 2.5)
+                        .strokeBorder(Color(hex: 0xF4F3ED).opacity(0.55), lineWidth: 2.0)
                         .frame(width: 202, height: 202)
 
                     ForEach(0..<12, id: \.self) { idx in
                         Capsule()
-                            .fill(Color.black.opacity(idx % 3 == 0 ? 0.85 : 0.35))
+                            .fill(Color(hex: 0xF4F3ED).opacity(idx % 3 == 0 ? 0.88 : 0.36))
                             .frame(width: idx % 3 == 0 ? 2.5 : 1.5, height: idx % 3 == 0 ? 12 : 7)
                             .offset(y: -84)
                             .rotationEffect(.degrees(Double(idx) * 30))
@@ -40,27 +49,27 @@ public struct LaunchIntroOverlay: View {
 
                     // Hour hand
                     RoundedRectangle(cornerRadius: 2)
-                        .fill(Color.black)
+                        .fill(Color(hex: 0xF4F3ED))
                         .frame(width: 4, height: 48)
                         .offset(y: -20)
                         .rotationEffect(.degrees(-120 + Double(progress) * 180))
 
                     // Minute hand
                     RoundedRectangle(cornerRadius: 2)
-                        .fill(Color.black.opacity(0.82))
+                        .fill(Color(hex: 0xDCDCD5).opacity(0.86))
                         .frame(width: 2.5, height: 70)
                         .offset(y: -30)
                         .rotationEffect(.degrees(-45 + Double(progress) * 410))
 
-                    // Red-pen second hand
+                    // Red-pen second hand (#F46862)
                     RoundedRectangle(cornerRadius: 1)
-                        .fill(palette.redPen)
+                        .fill(Color(hex: 0xF46862))
                         .frame(width: 1.5, height: 78)
                         .offset(y: -26)
                         .rotationEffect(.degrees(Double(progress) * 720))
 
                     Circle()
-                        .fill(palette.gold)
+                        .fill(Color(hex: 0xF4F3ED))
                         .frame(width: 10, height: 10)
                 }
                 .scaleEffect(0.88 + 0.12 * progress)
@@ -72,11 +81,12 @@ public struct LaunchIntroOverlay: View {
                         .foregroundStyle(Color(hex: 0xF4F3ED))
                     Text(".")
                         .font(.system(size: 40, weight: .bold, design: .serif))
-                        .foregroundStyle(palette.redPen)
+                        .foregroundStyle(Color(hex: 0xF46862))
                 }
                 .opacity(max(0, min(1, (progress - 0.48) * 2.4)))
             }
         }
+        .environment(\.colorScheme, .dark)
         .opacity(fadeOut)
         .onAppear {
             if reduceMotion {

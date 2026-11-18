@@ -6,7 +6,7 @@
 
 ## 核心亮点
 
-- **iOS 26 原生液态玻璃（Liquid Glass）视觉语言**：严格保留 Pickup 标志性的 **纯黑白 (`#060606` / `#F4F3ED`)** 与 **紫黑 (`#121212` / `#7C4DFF`)** 双主题、**有机红笔圈 (`#F46862`)** 与 **复古怀表金 (`#C5A86A`)**，采用 `GlassEffectContainer`、`.glassEffect(.regular.interactive(), in:)` 与 `.tabBarMinimizeBehavior(.onScrollDown)`，同时对 iOS 18 提供多层高光降级材质。
+- **iOS 26 原生液态玻璃（Liquid Glass）纯黑白极简视觉语言**：严格承袭 Pickup 标志性的 **墨黑毛玻璃 Obsidian (`#080808` / `#F4F3ED`)** 与 **素白毛玻璃 Paper (`#F5F4EF` / `#111111`)** 双色系极简美学，搭配 **有机红笔圈 (`#F46862`)**，采用 `GlassEffectContainer`、`.glassEffect(.regular.interactive(), in:)` 与 `.tabBarMinimizeBehavior(.onScrollDown)`，同时对 iOS 18 提供多层高光半透明毛玻璃降级材质。
 - **iPhone + iPad 自适应架构**：
   - iPhone：浮动液态玻璃 `TabView` + 可形变快速拾起胶囊（写日记 / 手绘涂鸦 / 立即备份）。
   - iPad：自适应 `NavigationSplitView` 浮动侧边栏 + 双列网格卡片 + 硬件键盘快捷键（`⌘N`, `⌘1–⌘5`, `⇧⌘B`）+ PencilKit 随手涂鸦。

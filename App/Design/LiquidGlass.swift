@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Provides native iOS 26 Liquid Glass containers and surfaces with rich multi-layer fallback on iOS 18.
+/// Provides native iOS 26 Liquid Glass containers and surfaces with rich multi-layer frosted fallback on iOS 18.
 public struct PickupGlassGroup<Content: View>: View {
     let spacing: CGFloat
     @ViewBuilder let content: () -> Content
@@ -26,8 +26,8 @@ public extension View {
     func pickupGlassCapsule(
         tint: Color? = nil,
         interactive: Bool = true,
-        fallbackSurface: Color = Color.white.opacity(0.08),
-        fallbackStroke: Color = Color.white.opacity(0.18)
+        fallbackSurface: Color? = nil,
+        fallbackStroke: Color = Color.white.opacity(0.22)
     ) -> some View {
         if #available(iOS 26.0, *) {
             if let tint {
@@ -42,14 +42,15 @@ public extension View {
                 )
             }
         } else {
+            let resolvedSurface = fallbackSurface ?? (tint?.opacity(0.92) ?? Color.white.opacity(0.06))
             self
                 .background(.ultraThinMaterial, in: Capsule())
-                .background(fallbackSurface, in: Capsule())
+                .background(resolvedSurface, in: Capsule())
                 .overlay(
                     Capsule()
                         .strokeBorder(
                             LinearGradient(
-                                colors: [fallbackStroke.opacity(1.2), fallbackStroke.opacity(0.25)],
+                                colors: [fallbackStroke, Color.primary.opacity(0.08)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             ),
@@ -64,8 +65,8 @@ public extension View {
         cornerRadius: CGFloat = 22,
         tint: Color? = nil,
         interactive: Bool = false,
-        fallbackSurface: Color = Color.white.opacity(0.06),
-        fallbackStroke: Color = Color.white.opacity(0.14)
+        fallbackSurface: Color? = nil,
+        fallbackStroke: Color = Color.white.opacity(0.20)
     ) -> some View {
         if #available(iOS 26.0, *) {
             if let tint {
@@ -80,14 +81,16 @@ public extension View {
                 )
             }
         } else {
+            let resolvedSurface = fallbackSurface ?? (tint?.opacity(0.92) ?? Color.white.opacity(0.05))
+            let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
             self
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
-                .background(fallbackSurface, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+                .background(.ultraThinMaterial, in: shape)
+                .background(resolvedSurface, in: shape)
                 .overlay(
-                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    shape
                         .strokeBorder(
                             LinearGradient(
-                                colors: [fallbackStroke.opacity(1.1), fallbackStroke.opacity(0.2)],
+                                colors: [fallbackStroke, Color.primary.opacity(0.08)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             ),
@@ -101,7 +104,8 @@ public extension View {
     func pickupGlassCircle(
         tint: Color? = nil,
         interactive: Bool = true,
-        fallbackStroke: Color = Color.white.opacity(0.2)
+        fallbackSurface: Color? = nil,
+        fallbackStroke: Color = Color.white.opacity(0.22)
     ) -> some View {
         if #available(iOS 26.0, *) {
             if let tint {
@@ -116,9 +120,21 @@ public extension View {
                 )
             }
         } else {
+            let resolvedSurface = fallbackSurface ?? (tint?.opacity(0.92) ?? Color.white.opacity(0.06))
             self
                 .background(.ultraThinMaterial, in: Circle())
-                .overlay(Circle().strokeBorder(fallbackStroke, lineWidth: 1))
+                .background(resolvedSurface, in: Circle())
+                .overlay(
+                    Circle()
+                        .strokeBorder(
+                            LinearGradient(
+                                colors: [fallbackStroke, Color.primary.opacity(0.08)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1
+                        )
+                )
         }
     }
 
@@ -141,7 +157,7 @@ public extension View {
     }
 }
 
-/// Content card with tactile glass rim lighting without over-applying glass to long scrolling prose.
+/// Translucent frosted glass editorial card with 1px specular border and monochrome depth.
 public struct PickupEditorialCard<Content: View>: View {
     let palette: PickupPalette
     var cornerRadius: CGFloat = 22
@@ -164,26 +180,33 @@ public struct PickupEditorialCard<Content: View>: View {
     }
 
     public var body: some View {
+        let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
         content()
             .padding(padding)
-            .background(
-                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .fill(palette.cardSurface.opacity(0.92))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+            .background {
+                shape
+                    .fill(.ultraThinMaterial)
+                    .overlay(shape.fill(palette.glassFill))
+            }
+            .overlay {
+                shape
                     .strokeBorder(
                         LinearGradient(
                             colors: [
-                                (isPinned ? palette.gold.opacity(0.55) : Color.white.opacity(0.16)),
-                                palette.hairline.opacity(0.4),
+                                isPinned ? palette.accent.opacity(0.45) : palette.specularTop,
+                                palette.specularBottom,
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         ),
                         lineWidth: 1
                     )
+            }
+            .shadow(
+                color: palette.isDark ? Color.black.opacity(0.32) : Color.black.opacity(0.06),
+                radius: palette.isDark ? 16 : 12,
+                x: 0,
+                y: palette.isDark ? 8 : 6
             )
-            .shadow(color: Color.black.opacity(0.28), radius: 14, x: 0, y: 8)
     }
 }

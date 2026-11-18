@@ -42,7 +42,7 @@ public struct EntryCardView: View {
                     } label: {
                         Image(systemName: entry.isPinned ? "star.fill" : "star")
                             .font(.subheadline)
-                            .foregroundStyle(entry.isPinned ? p.gold : p.tertiaryText)
+                            .foregroundStyle(entry.isPinned ? p.accent : p.tertiaryText)
                     }
 
                     Button(action: onEdit) {

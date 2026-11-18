@@ -1,8 +1,20 @@
 import Foundation
 
 public enum PickupThemeStyle: String, Codable, Sendable, CaseIterable {
-    case purpleDark
     case monochrome
+    case monochromeLight
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let raw = try container.decode(String.self)
+        switch raw {
+        case Self.monochromeLight.rawValue:
+            self = .monochromeLight
+        default:
+            // Legacy or unrecognized theme identifiers fall back safely to .monochrome.
+            self = .monochrome
+        }
+    }
 }
 
 public enum PickupLanguage: String, Codable, Sendable, CaseIterable {
@@ -211,7 +223,7 @@ public struct AppPreferences: Codable, Sendable, Equatable {
     }
 
     public init(
-        themeStyle: PickupThemeStyle = .purpleDark,
+        themeStyle: PickupThemeStyle = .monochrome,
         language: PickupLanguage = .zh,
         typographyStyle: PickupTypographyStyle = .editorialSerif,
         tutorialCompleted: Bool = false,

@@ -218,7 +218,7 @@ public struct RichEditorView: View {
                         isPinned.toggle()
                     } label: {
                         Image(systemName: isPinned ? "star.fill" : "star")
-                            .foregroundStyle(isPinned ? p.gold : p.secondaryText)
+                            .foregroundStyle(isPinned ? p.accent : p.secondaryText)
                     }
                     if existingEntry != nil {
                         Button(role: .destructive) {

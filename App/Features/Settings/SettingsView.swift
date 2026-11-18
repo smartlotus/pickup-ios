@@ -20,8 +20,8 @@ public struct SettingsView: View {
                         get: { store.preferences.themeStyle },
                         set: { val in Task { await store.updatePreferences { $0.themeStyle = val } } }
                     )) {
-                        Text(s.t("theme_purple")).tag(PickupThemeStyle.purpleDark)
                         Text(s.t("theme_mono")).tag(PickupThemeStyle.monochrome)
+                        Text(s.t("theme_mono_light")).tag(PickupThemeStyle.monochromeLight)
                     }
 
                     Picker(s.t("typography_title"), selection: Binding(
