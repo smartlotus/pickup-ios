@@ -144,23 +144,21 @@ public struct RichEditorView: View {
                                 maxSelectionCount: 9,
                                 matching: .any(of: [.images, .videos, .livePhotos])
                             ) {
-                                Label(s.t("add_media"), systemImage: "photo.on.rectangle.angled")
-                                    .font(.subheadline.weight(.semibold))
-                                    .foregroundStyle(p.primaryText)
-                                    .padding(.horizontal, 16)
-                                    .padding(.vertical, 11)
-                                    .pickupGlassCapsule(interactive: true)
+                                PickedMediaButtonLabel(
+                                    title: s.t("add_media"),
+                                    systemImage: "photo.on.rectangle.angled",
+                                    foreground: p.primaryText
+                                )
                             }
 
                             Button {
                                 showSketch = true
                             } label: {
-                                Label(s.t("add_sketch"), systemImage: "scribble.variable")
-                                    .font(.subheadline.weight(.semibold))
-                                    .foregroundStyle(p.primaryText)
-                                    .padding(.horizontal, 16)
-                                    .padding(.vertical, 11)
-                                    .pickupGlassCapsule(interactive: true)
+                                PickedMediaButtonLabel(
+                                    title: s.t("add_sketch"),
+                                    systemImage: "scribble.variable",
+                                    foreground: p.primaryText
+                                )
                             }
                         }
 
@@ -381,5 +379,20 @@ private struct PickedMovieData: Transferable, Sendable {
             let ext = received.file.pathExtension.isEmpty ? "mp4" : received.file.pathExtension.lowercased()
             return PickedMovieData(data: data, ext: ext)
         }
+    }
+}
+
+private struct PickedMediaButtonLabel: View {
+    let title: String
+    let systemImage: String
+    let foreground: Color
+
+    var body: some View {
+        Label(title, systemImage: systemImage)
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(foreground)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 11)
+            .pickupGlassCapsule(interactive: true)
     }
 }
